@@ -1,0 +1,133 @@
+﻿@page "/CustomerList"
+@using Newtonsoft.Json
+@using SentezMicro.Web.Core.Results
+@using SentezMicro.Web.Core.ViewModel
+@inject HttpClient Http;
+@inject NavigationManager NavigationManager;
+@inject IJSRuntime js;
+
+@inject Services.Customer.ICustomerService customerService;
+
+<NavLink class="nav-link" href="CustomerAdd">
+    <span class="" aria-hidden="true">Add New</span>
+</NavLink>
+
+<h4>Customer List</h4>
+@if (Customers is null)
+{
+    <p><em>Customer List Loading... !</em></p>
+}
+else
+{
+
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>RecID</th>
+                <th>Code</th>
+                <th>Company Name</th>
+                <th>Phone</th>
+                <th>Type</th>
+                <th>Address</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var emp in Customers)
+            {
+                <tr>
+                    <td>@emp.RecId  </td>
+                    <td>@emp.CurrentAccountCode  </td>
+                    <td>@emp.CurrentAccountName</td>
+                    <td>@emp.CurrentAccountPhone</td>
+                    <td>@emp.CurrentAccountEmail</td>
+                    <td>@emp.CurrentAccountAddress</td>
+
+                    <td>
+                        @*<button class="btn btn-danger" @onclick="@(() => EditCustomer(emp.ID))">Edit</button>   *@
+                        <SentezEditButton Title="CusEdit" OnClickCallback="@(() => EditCustomer(emp.RecId))"></SentezEditButton>
+                        <SentezDeleteButton Title="Delete" OnClickCallback="@(() => DeleteCustomer(emp.RecId))"></SentezDeleteButton>
+                        @*<button class="btn btn-danger" @onclick="@(() => DeleteCustomer(emp.RecId))">Delete</button>*@
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <Button @onclick="CreateFakeCustomers">
+        <span class="" aria-hidden="true">Create 5 Customers</span>
+    </Button>
+   
+}
+
+
+@functions {
+
+    private List<CustomerVM> Customers = new List<CustomerVM>();
+
+    ///protected override async Task OnInitializedAsync() => await GetCustomers();
+
+    protected override async Task OnInitializedAsync()
+    {
+        Customers = await GetCustomers();
+    }
+
+    private async Task<List<CustomerVM>> GetCustomers()
+    {
+        var responseData = await customerService.GetAllCustomersResultModel();
+        string x = responseData.Message;
+        return responseData.Data;
+    }
+
+    private async Task<List<CustomerVM>> GetCustomersResultModel()
+    {
+        var responseData = await customerService.GetAllCustomersResultModel();
+        return responseData.Data;
+    }
+
+    private async Task DeleteCustomer(int id)
+    {
+        var dev = Customers.First(x => x.RecId == id);
+        if (await js.InvokeAsync<bool>("confirm", $"Do you want to delete {dev.CurrentAccountName}'s ({dev.RecId}) Record?"))
+        {
+            using var response = await Http.DeleteAsync("https://localhost:44391/api/Customer/Delete/" + Convert.ToInt32(dev.RecId));
+
+            if (!response.IsSuccessStatusCode)
+            {
+                // set error message for display, log to console and return
+                string errorMessage = response.ReasonPhrase;
+                await js.InvokeVoidAsync("alert", $"Error Occured!" + errorMessage);
+                return;
+            }
+
+            await js.InvokeVoidAsync("alert", $"Deleted Successfully!");
+            await OnInitializedAsync();
+
+        }
+    }
+
+
+    private async Task EditCustomer(int id)
+    {
+        var dev = Customers.First(x => x.RecId == id);
+        if (await js.InvokeAsync<bool>("confirm", $"Do you want to edit {dev.CurrentAccountName}'s ({dev.RecId}) Record?"))
+        {
+            NavigationManager.NavigateTo("CustomerUpdate/" + id);
+        }
+    }
+
+    private async Task CreateFakeCustomers()
+    {
+        if (await js.InvokeAsync<bool>("confirm", $"Do you want to create Fake Records?"))
+        {
+            List<CustomerVM> cusList = await customerService.SeedCreateCustomer(5);
+            if (cusList.Count == 5)
+            {
+                Customers = await GetCustomers();
+                NavigationManager.NavigateTo("CustomerList");
+            }
+        }
+    }
+
+
+}

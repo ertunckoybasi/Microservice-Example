@@ -1,0 +1,67 @@
+﻿@page "/ProductAdd"
+@using SentezMicro.Web.Core.ViewModel
+@inject NavigationManager NavigationManager;
+@inject IJSRuntime js;
+@inject Services.Product.IProductService ProductService;
+
+
+<h2>Add Product</h2>
+<hr />
+
+<form>
+    <div class="row">
+        <div class="col-md-8">
+            <div class="form-group">
+                <label for="ProductName" class="control-label">Product Name</label>
+                <input form="ProductName" class="form-control" @bind="@obj.ProductName" />
+            </div>
+            <div class="form-group">
+                <label for="Price" class="control-label">Price</label>
+                <input form="Price" class="form-control" @bind="@obj.Price" />
+            </div>
+            <div class="form-group">
+                <label for="Barcode" class="control-label">Barcode</label>
+                <input form="Barcode" class="form-control" @bind="@obj.Barcode" />
+            </div>
+            <div class="form-group">
+                <label for="Description" class="control-label">Description</label>
+                <input form="Description" class="form-control" @bind="@obj.Description" />
+            </div>
+           
+
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-4">
+            <div class="form-group">
+                <input type="button" class="btn btn-primary" @onclick="@CreateProduct" value="Save" />
+                <input type="button" class="btn btn-primary" @onclick="@Cancel" value="Cancel" />
+            </div>
+        </div>
+    </div>
+</form>
+
+@functions {
+
+    ProductVM obj;
+
+    protected override async Task OnInitializedAsync()
+    {
+        obj = new ProductVM();
+        await Task.CompletedTask;
+    }
+
+    protected async void CreateProduct()
+    {
+        await ProductService.CreateProduct(obj);
+        NavigationManager.NavigateTo("ProductList");
+
+      
+    }
+    void Cancel()
+    {
+        NavigationManager.NavigateTo("ProductList");
+    }
+}
+

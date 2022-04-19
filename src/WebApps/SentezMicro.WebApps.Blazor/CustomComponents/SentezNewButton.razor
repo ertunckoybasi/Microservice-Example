@@ -1,0 +1,15 @@
+﻿ 
+<button type="button" class="btn btn-primary"  @onclick="OnClickCallback">>
+    @if (!string.IsNullOrEmpty(Title))
+    {
+        <span class="far fa-new"> @Title</span>
+    }
+</button>
+
+@code {
+    [Parameter]
+    public string Title { get; set; }
+
+     [Parameter]
+    public EventCallback OnClickCallback { get; set; } 
+}

@@ -1,0 +1,11 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net5.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\Customer\Domain\SentezMicro.Services.Customer.Domain\Customer.Domain.csproj" />
+  </ItemGroup>
+
+</Project>

@@ -1,0 +1,70 @@
+﻿@page "/CustomerAdd"
+@using SentezMicro.Web.Core.ViewModel
+@inject NavigationManager NavigationManager;
+@inject IJSRuntime js;
+@inject Services.Customer.ICustomerService customerService;
+
+
+<h2>Add Customer</h2>
+<hr />
+
+<form>
+    <div class="row">
+        <div class="col-md-8">
+            <div class="form-group">
+                <label for="CurrentAccountCode" class="control-label">Code</label>
+                <input form="CurrentAccountCode" class="form-control" @bind="@obj.CurrentAccountCode" />
+            </div>
+            <div class="form-group">
+                <label for="CurrentAccountName" class="control-label">Name</label>
+                <input form="CurrentAccountName" class="form-control" @bind="@obj.CurrentAccountName" />
+            </div>
+            <div class="form-group">
+                <label for="CurrentAccountEmail" class="control-label">Email</label>
+                <input form="CurrentAccountEmail" class="form-control" @bind="@obj.CurrentAccountEmail" />
+            </div>
+            <div class="form-group">
+                <label for="CurrentAccountPhone" class="control-label">Phone</label>
+                <input form="CurrentAccountPhone" class="form-control" @bind="@obj.CurrentAccountPhone" />
+            </div>
+            <div class="form-group">
+                <label for="CurrentAccountAddress" class="control-label">Address</label>
+                <input form="CurrentAccountAddress" class="form-control" @bind="@obj.CurrentAccountAddress" />
+            </div>
+
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-4">
+            <div class="form-group">
+                <input type="button" class="btn btn-primary" @onclick="@CreateCustomer" value="Save" />
+                <input type="button" class="btn btn-primary" @onclick="@Cancel" value="Cancel" />
+            </div>
+        </div>
+    </div>
+</form>
+
+@functions {
+
+    CustomerVM obj;
+
+    protected override async Task OnInitializedAsync()
+    {
+        obj = new CustomerVM();
+        await Task.CompletedTask;
+    }
+
+    protected async void CreateCustomer()
+    {
+        await customerService.CreateCustomer(obj);
+        NavigationManager.NavigateTo("CustomerList");
+
+      
+    }
+    void Cancel()
+    {
+        NavigationManager.NavigateTo("CustomerList");
+    }
+}
+

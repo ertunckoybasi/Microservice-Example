@@ -1,0 +1,131 @@
+﻿@page "/ProductList"
+@using Newtonsoft.Json
+@using SentezMicro.Web.Core.Results
+@using SentezMicro.Web.Core.ViewModel
+@inject HttpClient Http;
+@inject NavigationManager NavigationManager;
+@inject IJSRuntime js;
+
+@inject Services.Product.IProductService productService;
+
+<NavLink class="nav-link" href="ProductAdd">
+    <span class="" aria-hidden="true">Add New</span>
+</NavLink>
+
+<h4>Product List</h4>
+@if (products is null)
+{
+    <p><em>Product List Loading... !</em></p>
+}
+else
+{
+
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>RecID</th>
+                <th>Product Name</th>
+                <th>Barcode</th>
+                <th>Price</th>
+                <th>Description</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var emp in products)
+            {
+                <tr>
+                    <td>@emp.RecId  </td>
+                    <td>@emp.ProductName </td>
+                    <td>@emp.Barcode</td>
+                    <td>@emp.Price</td>
+                    <td>@emp.Description</td>
+                    
+
+                    <td>
+                        @*<button class="btn btn-danger" @onclick="@(() => Editproduct(emp.ID))">Edit</button>   *@
+                        <SentezEditButton Title="CusEdit" OnClickCallback="@(() => Editproduct(emp.RecId))"></SentezEditButton>
+                        <SentezDeleteButton Title="Delete" OnClickCallback="@(() => Deleteproduct(emp.RecId))"></SentezDeleteButton>
+                        @*<button class="btn btn-danger" @onclick="@(() => Deleteproduct(emp.RecId))">Delete</button>*@
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <Button @onclick="CreateFakeproducts">
+        <span class="" aria-hidden="true">Create 5 products</span>
+    </Button>
+   
+}
+
+
+@functions {
+
+    private List<ProductVM> products = new List<ProductVM>();
+
+    ///protected override async Task OnInitializedAsync() => await Getproducts();
+
+    protected override async Task OnInitializedAsync()
+    {
+        products = await GetProducts();
+    }
+
+    private async Task<List<ProductVM>> GetProducts()
+    {
+        var responseData = await productService.GetAllProductsResultModel();
+        string x = responseData.Message;
+        return responseData.Data;
+    }
+
+    private async Task<List<ProductVM>> GetProductsResultModel()
+    {
+        var responseData = await productService.GetAllProductsResultModel();
+        return responseData.Data;
+    }
+
+    private async Task Deleteproduct(int id)
+    {
+        var dev = products.First(x => x.RecId == id);
+        if (await js.InvokeAsync<bool>("confirm", $"Do you want to delete {dev.ProductName}'s ({dev.RecId}) Record?"))
+        {
+          bool result= await  productService.DeleteProduct(id);
+
+            if (!result)
+            {
+                // set error message for display, log to console and return
+                await js.InvokeVoidAsync("alert", $"Error Occured!");
+                return;
+            }
+
+            await js.InvokeVoidAsync("alert", $"Deleted Successfully!");
+            await OnInitializedAsync();
+
+        }
+    }
+
+
+    private async Task Editproduct(int id)
+    {
+        var dev = products.First(x => x.RecId == id);
+        if (await js.InvokeAsync<bool>("confirm", $"Do you want to edit {dev.ProductName}'s ({dev.RecId}) Record?"))
+        {
+            NavigationManager.NavigateTo("productUpdate/" + id);
+        }
+    }
+
+    private async Task CreateFakeproducts()
+    {
+        if (await js.InvokeAsync<bool>("confirm", $"Do you want to create Fake Records?"))
+        {
+            List<ProductVM> cusList = await productService.SeedCreateProduct(5);
+            if (cusList.Count == 5)
+            {
+                products = await GetProducts();
+                NavigationManager.NavigateTo("productList");
+            }
+        }
+    }
+
+
+}

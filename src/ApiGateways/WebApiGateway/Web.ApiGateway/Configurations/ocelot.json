@@ -1,0 +1,54 @@
+{
+  "Routes": [
+    {
+      "UseServiceDiscovery": true,
+      "ServiceName": "CustomerService",
+      "DownstreamPathTemplate": "/api/customer/{everything}",
+      "DownstreamScheme": "http",
+
+      "UpstreamPathTemplate": "/customer/{everything}",
+      "UpstreamHttpMethod": [ "Get", "Post", "Delete", "Put" ],
+      "UpstreamScheme": "http"
+    },
+
+
+
+    {
+      "UseServiceDiscovery": true,
+      "ServiceName": "ProductService",
+      "DownstreamPathTemplate": "/api/product/{everything}",
+      "DownstreamScheme": "http",
+
+      "UpstreamPathTemplate": "/product/{everything}",
+      "UpstreamHttpMethod": [ "Get", "Post", "Delete", "Put" ],
+      "UpstreamScheme": "http"
+    },
+
+    {
+      "UseServiceDiscovery": true,
+      "ServiceName": "EmailService",
+
+      "DownstreamPathTemplate": "/api/email",
+      "DownstreamScheme": "http",
+
+      "UpstreamPathTemplate": "/email",
+      "UpstreamHttpMethod": [ "Post", "Put" ],
+      "UpstreamScheme": "http"
+    }
+
+
+
+  ],
+
+
+  "GlobalConfiguration": {
+    "BaseUrl": "http://localhost:5000",
+    "ServiceDiscoveryProvider": {
+      "Host": "localhost",
+      "Port": 8500,
+      "Type": "Consul"
+    }
+  }
+
+
+}

@@ -1,0 +1,15 @@
+﻿ 
+<button type="button" class="btn btn-danger"  @onclick="OnClickCallback">>
+    @if (!string.IsNullOrEmpty(Title))
+    {
+        <span class="far fa-trash-alt"> @Title</span>
+    }
+</button>
+
+@code {
+    [Parameter]
+    public string Title { get; set; }
+
+     [Parameter]
+    public EventCallback OnClickCallback { get; set; } 
+}

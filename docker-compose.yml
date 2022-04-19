@@ -1,0 +1,65 @@
+version: '3.8'
+
+services:
+  consul-server1:
+    image: consul:1.9.3
+    container_name: consul-server1
+    restart: always
+    volumes:
+      - ./consul_config/server1.json:/consul/config/server1.json:ro
+    networks:
+      - sentez_micro_net
+    ports:
+      - '8500:8500'
+      - '8600:8600/tcp'
+      - '8600:8600/udp'
+    command: 'agent -bootstrap-expect=3'
+
+  consul-server2:
+    image: consul:1.9.3
+    container_name: consul-server2
+    restart: always
+    volumes:
+      - ./consul_config/server2.json:/consul/config/server2.json:ro
+    networks:
+      - sentez_micro_net
+    command: 'agent -bootstrap-expect=3'
+
+  consul-server3:
+    image: consul:1.9.3
+    container_name: consul-server3
+    restart: always
+    volumes:
+      - ./consul_config/server3.json:/consul/config/server3.json:ro
+    networks:
+      - sentez_micro_net
+    command: 'agent -bootstrap-expect=3'
+
+  consul-client:
+    image: consul:1.9.3
+    container_name: consul-client
+    restart: always
+    volumes:
+      - ./consul_config/client.json:/consul/config/client.json:ro
+    networks:
+      - sentez_micro_net
+    command: 'agent'
+    
+  rabbitmq:
+    container_name: "rabbitmq"
+    image: rabbitmq:3-management
+    environment:
+    - RABBITMQ_DEFAULT_USER=guest
+    - RABBITMQ_DEFAULT_PASS=guest
+    ports:
+            # AMQP protocol port
+            - '5672:5672'
+            # HTTP management UI
+            - '15672:15672'
+    networks: 
+      - sentez_micro_net 
+
+
+networks:
+  sentez_micro_net:
+    driver: bridge
